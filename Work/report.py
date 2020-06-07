@@ -34,7 +34,7 @@ def read_prices(filename: str) -> dict:
     return prices
 
 
-def compute_investment_results(portfolio: dict, prices: dict) -> str:
+def compute_investment_results(portfolio: list, prices: dict) -> str:
     """Computes wheather portfolio makes money or losses"""
 
     result = 0.0
@@ -42,11 +42,41 @@ def compute_investment_results(portfolio: dict, prices: dict) -> str:
         try:
             result += asset['shares'] * (prices[asset['name']]  - asset['price'])
         except KeyError:
-            print('no asset', asset['name'])
+            print('no asset in given prices', asset['name'])
 
     if result > 0:
         return f'Investments are success! Total profit = {result}'
     return f'Investments are failure! Total profit = {result}'
+
+
+def make_report(portfolio: list, prices: dict) -> list:
+    """Create the report on portfolio value change"""
+    report = []
+    for asset in portfolio:
+        try:
+            report.append((
+                asset['name'],
+                asset['shares'],
+                prices[asset['name']], prices[asset['name']]  - asset['price']
+                ))
+        except KeyError:
+            print('no asset in given prices', asset['name'])
+
+    return report
+
+
+def prettify_report(report: list, headers: tuple) -> None:
+    """Prints pretty report"""
+    if len(headers) != 4:
+        raise ValueError(f'Headers have wrong length ({len(headers)}). Should be 4.')
+    headers_string =  '%10s %10s %10s %10s' % headers
+    
+    dashes = ' '.join(['----------']*len(headers))
+
+    print(headers_string)
+    print(dashes)
+    for name, shares, price, change in report:
+        print(f'{name:>10s} {shares:>10d} {price:>10.2f} {change:>10.2f}')
 
 
 if len(sys.argv) == 2:
@@ -56,5 +86,7 @@ else:
 
 prices = read_prices('Data/prices.csv')
 portfolio = read_portfolio('Data/portfolio.csv')
-result = compute_investment_results(portfolio, prices)
-print(result)
+report = make_report(portfolio, prices)
+headers = ('Name', 'Shares', 'Price', 'Change')
+
+prettify_report(report, headers)
