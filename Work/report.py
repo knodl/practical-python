@@ -9,10 +9,16 @@ def read_portfolio(filename: str) -> list:
     portfolio = []
     with open(filename, 'rt') as f:
         rows = csv.reader(f)
-        next(rows)  # skip the header
+        headers = next(rows)  # skip the header
         for row in rows:
+            record = dict(zip(headers, row))
+            stock = {
+                 'name': record['name'],
+                 'shares': int(record['shares']),
+                 'price': float(record['price'])
+            }
             try:
-                portfolio.append({'name': row[0], 'shares': int(row[1]), 'price': float(row[2])})
+                portfolio.append(stock)
             except ValueError:
                 print('broken line', row)
 
@@ -40,7 +46,7 @@ def compute_investment_results(portfolio: list, prices: dict) -> str:
     result = 0.0
     for asset in portfolio:
         try:
-            result += asset['shares'] * (prices[asset['name']]  - asset['price'])
+            result += int(asset['shares']) * (float(prices[asset['name']])  - float(asset['price']))
         except KeyError:
             print('no asset in given prices', asset['name'])
 
@@ -56,8 +62,9 @@ def make_report(portfolio: list, prices: dict) -> list:
         try:
             report.append((
                 asset['name'],
-                asset['shares'],
-                prices[asset['name']], prices[asset['name']]  - asset['price']
+                int(asset['shares']),
+                float(prices[asset['name']]), 
+                float(prices[asset['name']])  - float(asset['price'])
                 ))
         except KeyError:
             print('no asset in given prices', asset['name'])
@@ -82,10 +89,10 @@ def prettify_report(report: list, headers: tuple) -> None:
 if len(sys.argv) == 2:
     filename = sys.argv[1]
 else:
-    filename = 'Data/portfolio.csv'
+    filename = 'Data/portfoliodate.csv'
 
 prices = read_prices('Data/prices.csv')
-portfolio = read_portfolio('Data/portfolio.csv')
+portfolio = read_portfolio(filename)
 report = make_report(portfolio, prices)
 headers = ('Name', 'Shares', 'Price', 'Change')
 

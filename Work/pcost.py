@@ -8,12 +8,13 @@ def portfolio_cost(filename: str) -> float:
     with open(filename, 'rt') as f:
         total_cost = 0
         rows = csv.reader(f)
-        next(rows)
-        for row in rows:
+        headers = next(rows)
+        for idx, row in enumerate(rows, start=1):
+            record = dict(zip(headers, row))
             try:
-                total_cost += int(row[1]) * float(row[2])
+                total_cost += int(record['shares']) * float(record['price'])
             except ValueError:
-                print('broken line', row)
+                print(f'Row {idx}: Couldn\'t convert: {row}')
 
     return total_cost
 
