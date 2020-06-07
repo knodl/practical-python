@@ -5,7 +5,7 @@ import sys
 def portfolio_cost(filename: str) -> float:
     """Returns the total cost of the portfolio"""
     
-    with open('Data/portfolio.csv', 'rt') as f:
+    with open(filename, 'rt') as f:
         total_cost = 0
         rows = csv.reader(f)
         next(rows)
