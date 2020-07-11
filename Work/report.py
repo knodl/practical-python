@@ -1,28 +1,15 @@
 import csv
 import sys
 from pprint import pprint
+from fileparse import parse_csv
 
 
-def read_portfolio(filename: str) -> list:
-    """Reads the portfolio files"""
-    
-    portfolio = []
-    with open(filename, 'rt') as f:
-        rows = csv.reader(f)
-        headers = next(rows)  # skip the header
-        for row in rows:
-            record = dict(zip(headers, row))
-            stock = {
-                 'name': record['name'],
-                 'shares': int(record['shares']),
-                 'price': float(record['price'])
-            }
-            try:
-                portfolio.append(stock)
-            except ValueError:
-                print('broken line', row)
-
-    return portfolio
+def read_portfolio(filename):
+    '''
+    Read a stock portfolio file into a list of dictionaries with keys
+    name, shares, and price.
+    '''
+    return parse_csv(filename, select=['name','shares','price'], types=[str,int,float])
 
 
 def read_prices(filename: str) -> dict:
@@ -72,7 +59,7 @@ def make_report(portfolio: list, prices: dict) -> list:
     return report
 
 
-def prettify_report(report: list, headers: tuple) -> None:
+def print_report(report: list, headers: tuple) -> None:
     """Prints pretty report"""
     if len(headers) != 4:
         raise ValueError(f'Headers have wrong length ({len(headers)}). Should be 4.')
@@ -86,14 +73,14 @@ def prettify_report(report: list, headers: tuple) -> None:
         print(f'{name:>10s} {shares:>10d} {price:>10.2f} {change:>10.2f}')
 
 
-if len(sys.argv) == 2:
-    filename = sys.argv[1]
-else:
-    filename = 'Data/portfoliodate.csv'
+def portfolio_report(portfolio_filename: str, prices_filename: str) -> None:
+    """
+    Creates and prints report on portfolio of a given assets.
+    """
+    headers = ('Name', 'Shares', 'Price', 'Change')
 
-prices = read_prices('Data/prices.csv')
-portfolio = read_portfolio(filename)
-report = make_report(portfolio, prices)
-headers = ('Name', 'Shares', 'Price', 'Change')
+    portfolio = parse_csv(portfolio_filename, select=['name','shares','price'], types=[str,int,float])
+    prices = dict(parse_csv(prices_filename, types=[str,float], has_headers=False))
 
-prettify_report(report, headers)
+    report = make_report(portfolio, prices)
+    print_report(report, headers)

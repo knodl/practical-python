@@ -1,21 +1,15 @@
 import csv
 import sys
+from report import read_portfolio
 
 
 def portfolio_cost(filename: str) -> float:
     """Returns the total cost of the portfolio"""
     
-    with open(filename, 'rt') as f:
-        total_cost = 0
-        rows = csv.reader(f)
-        headers = next(rows)
-        for idx, row in enumerate(rows, start=1):
-            record = dict(zip(headers, row))
-            try:
-                total_cost += int(record['shares']) * float(record['price'])
-            except ValueError:
-                print(f'Row {idx}: Couldn\'t convert: {row}')
-
+    portfolio = read_portfolio(filename)
+    total_cost = 0
+    for asset in portfolio:
+            total_cost += asset['shares'] * asset['price']
     return total_cost
 
 
