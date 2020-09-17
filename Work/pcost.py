@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import csv
 import sys
 from report import read_portfolio
@@ -13,11 +15,14 @@ def portfolio_cost(filename: str) -> float:
     return total_cost
 
 
-if len(sys.argv) == 2:
-    filename = sys.argv[1]
-else:
-    filename = 'Data/portfolio.csv'
+def main(argv):
+    import sys
+    if len(sys.argv) == 2:
+        cost = portfolio_cost(sys.argv[1])
+        print(f'Total cost: {cost}')
+    else:
+        raise SystemExit('Usage: %s portfile' % sys.argv[0])
 
 
-cost = portfolio_cost(filename)
-print(f'Total cost: {cost}')
+if __name__ == "__main__":
+    main(sys.argv)

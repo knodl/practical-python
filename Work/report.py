@@ -5,26 +5,17 @@ from fileparse import parse_csv
 
 
 def read_portfolio(filename):
-    '''
+    """
     Read a stock portfolio file into a list of dictionaries with keys
     name, shares, and price.
-    '''
+    """
     return parse_csv(filename, select=['name','shares','price'], types=[str,int,float])
 
 
 def read_prices(filename: str) -> dict:
     """Reads the file with assets prices"""
-
-    prices = {}
-    with open(filename, 'rt') as f:
-        rows = csv.reader(f)
-        for row in rows:
-            try:
-                prices[str(row[0])] = float(row[1])
-            except (ValueError, IndexError):
-                print('broken line', row)
     
-    return prices
+    return parse_csv(filename, types=[str,float], has_headers=False)
 
 
 def compute_investment_results(portfolio: list, prices: dict) -> str:
@@ -79,8 +70,19 @@ def portfolio_report(portfolio_filename: str, prices_filename: str) -> None:
     """
     headers = ('Name', 'Shares', 'Price', 'Change')
 
-    portfolio = parse_csv(portfolio_filename, select=['name','shares','price'], types=[str,int,float])
+    portfolio = read_portfolio(portfolio_filename)
     prices = dict(parse_csv(prices_filename, types=[str,float], has_headers=False))
 
     report = make_report(portfolio, prices)
     print_report(report, headers)
+
+
+def main(argv):
+    portfolio_report(portfolio_filename=argv[1], prices_filename=argv[2])
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) == 3:
+        main(sys.argv)
+
